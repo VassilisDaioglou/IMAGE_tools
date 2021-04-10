@@ -90,7 +90,7 @@ class WriteMaps:
 
         ncfile.close()
 
-    def maptime2nc(outmap, title, varname, varunit, outname, dim1='EMPTY'):
+    def maptime2nc(self, dim1='EMPTY'):
         """
         Creates a netCDF file from a relevant array
         Array must contain 3 axes: latitude, longitude, time
@@ -112,10 +112,10 @@ class WriteMaps:
         Time dimension labels are wrong.
         """
         # Create nc-file with correct dimensions
-        ncfile = netCDF4.Dataset(OutputDir.out_dir + outname + '.nc', mode='w', format='NETCDF4_CLASSIC')
-        lat_dim = ncfile.createDimension('lat', len(outmap[0])) # latitude axis
-        lon_dim = ncfile.createDimension('lon', len(outmap[0][0])) # longitude axis
-        time_dim = ncfile.createDimension('time', len(outmap)) # time axis
+        ncfile = netCDF4.Dataset(OutputDir.out_dir + self.outname + '.nc', mode='w', format='NETCDF4_CLASSIC')
+        lat_dim = ncfile.createDimension('lat', len(self.outmap[0])) # latitude axis
+        lon_dim = ncfile.createDimension('lon', len(self.outmap[0][0])) # longitude axis
+        time_dim = ncfile.createDimension('time', len(self.outmap)) # time axis
         if dim1 != 'EMPTY':
             try:
                 dim1_dim = ncfile.createDimension('dimension1', len(dim1)) # dim1 axis if dictionary
@@ -140,11 +140,11 @@ class WriteMaps:
             dim1_var.standard_name = str(dim1)
             dim1_var.units = '-'
         if dim1 == 'EMPTY':
-            var = ncfile.createVariable(outname,np.float64,('time','lat','lon'))
+            var = ncfile.createVariable(self.outname,np.float64,('time','lat','lon'))
         else:
-            var = ncfile.createVariable(outname,np.float64,('time','lat','lon','dimension1'))
-        var.standard_name = varname
-        var.units = varunit
+            var = ncfile.createVariable(self.outname,np.float64,('time','lat','lon','dimension1'))
+        var.standard_name = self.varname
+        var.units = self.varunit
 
         # Writing data in first variable
         if dim1 == 'EMPTY':
@@ -161,7 +161,7 @@ class WriteMaps:
         if dim1 != 'EMPTY':
             dim1_var[:] = np.arange(ndim1) # 1st dimension length
         time[:] = np.arange(ntimes) # times values 1:length
-        var[:,:,:] = outmap[:,:,:]
+        var[:,:,:] = self.outmap[:,:,:]
 
         dates = [dt.datetime(1970,1,1,0),dt.datetime(1975,1,1,0),dt.datetime(1980,1,1,0),dt.datetime(1985,1,1,0),
                 dt.datetime(1990,1,1,0),dt.datetime(1995,1,1,0),dt.datetime(2000,1,1,0),dt.datetime(2005,1,1,0),
