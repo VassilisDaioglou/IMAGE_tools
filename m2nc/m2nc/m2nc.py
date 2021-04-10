@@ -10,8 +10,18 @@ from functions import m2nc
     # 1. m-map file name, 2. Map Title, 3. Variable Name, 4. Unit, 5. Output Name, 6. Has time dimension (boolean)
         
 output_maps_list = [
-            ['nw_EmisType2ST_pkm.out','Woody Gradual Emission Factor','WOODY_EF_Gradual','kgCO2/km^2','WOODY_EF_Gradual',False]]
+            ['nw_EmisType2ST_pkm.out','Non-Woody Gradual Emission Factor','NWOOD_EF_Gradual','kgCO2/km^2','NWOOD_EF_Gradual',False],
+            ['nw_EmisType1_pkm.out','Non-Woody Instantaneous Emission Factor','NWOOD_EF_Instant','kgCO2/km^2','NWOOD_EF_Instant',False],
+            ['wd_EmisType2ST_pkm.out','Woody Gradual Emission Factor','WOODY_EF_Gradual','kgCO2/km^2','WOODY_EF_Gradual',False],
+            ['wd_EmisType1_pkm.out','Woody Instantaneous Emission Factor','WOODY_EF_Instant','kgCO2/km^2','WOODY_EF_Instant',False],
+            ['sc_EmisType2ST_pkm.out','Sugarcane Gradual Emission Factor','SUGAR_EF_Gradual','kgCO2/km^2','SUGAR_EF_Gradual',False],
+            ['sc_EmisType1_pkm.out','Sugarcane Instantaneous Emission Factor','SUGAR_EF_Instant','kgCO2/km^2','SUGAR_EF_Instant',False],
+            ['mz_EmisType2ST_pkm.out','Maize Gradual Emission Factor','MAIZE_EF_Gradual','kgCO2/km^2','MAIZE_EF_Gradual',False],
+            ['mz_EmisType1_pkm.out','Maize Instantaneous Emission Factor','MAIZE_EF_Instant','kgCO2/km^2','MAIZE_EF_Instant',False],
+            ['oc_EmisType2ST_pkm.out','Oilcrops Gradual Emission Factor','OILCR_EF_Gradual','kgCO2/km^2','OILCR_EF_Gradual',False],
+            ['oc_EmisType1_pkm.out','Oilcrops Instantaneous Emission Factor','OILCR_EF_Instant','kgCO2/km^2','OILCR_EF_Instant',False]
+            ]
         
 for outmap in output_maps_list:
-    m2nc = m2nc(outmap[0], outmap[1], outmap[2], outmap[3], outmap[4], outmap[5])
-    m2nc.run_m2nc() 
+    write_output = m2nc(outmap[0], outmap[1], outmap[2], outmap[3], outmap[4], outmap[5])
+    write_output.run_m2nc() 
