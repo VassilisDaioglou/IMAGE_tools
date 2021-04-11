@@ -123,7 +123,7 @@ class WriteMaps:
                 dim1_dim = ncfile.createDimension('dimension1', dim1) # dim1 axis if scalar
 
         # Global Attributes
-        ncfile.title, ncfile.unit, ncfile.author, ncfile.contact, ncfile.date, ncfile.repository, ncfile.revision, ncfile.institution, ncfile.institution2, ncfile.references, ncfile.disclaimer = self.get_ncattributes()
+        ncfile.title, ncfile.unit, ncfile.author, ncfile.contact, ncfile.date, ncfile.model, ncfile.repository, ncfile.revision, ncfile.institution, ncfile.institution2, ncfile.references, ncfile.disclaimer = self.get_ncattributes()
 
         # Define two variables with the same names as dimensions
         lat = ncfile.createVariable('lat', np.float32, ('lat',))
