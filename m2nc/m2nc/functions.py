@@ -1,5 +1,9 @@
 """
-Functions
+Functions required to convert m-maps to netCDF maps
+
+All functions are inside the m2nc class. 
+
+Each instance of this class converts an m-map to a netCDFmap 
 """
 import netCDF4
 import numpy as np
@@ -10,6 +14,11 @@ from outputs import WriteMaps
 
 class m2nc:
     """
+    Class which converts m-maps to netCDF maps.
+
+    This class reads in required details of an m-map. It then converts this
+    map from a vector into a grid, and subsequently outputs it, including
+    metadata into a netCDF map.
     """
     def __init__(self, mmap_in, map_title, map_var, map_unit, map_outname, timexist):
         self.mmap_in = mmap_in
@@ -20,6 +29,12 @@ class m2nc:
         self.timexist = timexist
 
     def run_m2nc(self):
+        """
+        Function which starts procedure.
+        Reads in ancilliary data needed to convert m-map to grids. 
+            - text file linking m-map verctor to coordinates
+            - Generic map used to apply masking of oceans etc.
+        """
         # *** DATA NEEDED TO GET THE m-to-netCDF MAPPING ***
         self.grdfile  = np.loadtxt(InputDir.data_dir + 'mcoord.txt')
         
@@ -32,7 +47,7 @@ class m2nc:
 
     def make_nc_map(self):
         """
-        Convert m-maps to netCDF maps
+        Procedure which m-maps (vectors) to to grids and subsequently to netCDF maps
 
         First: Map m-map vector to grid using a file (grdfile) linking m-map cells to coordinates
         This produces a "mapping"
