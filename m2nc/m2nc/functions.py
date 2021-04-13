@@ -130,10 +130,14 @@ class m2nc:
         if existtime:
             gridmap = np.zeros((len(self.time), 360, 720))
             for t in range(len(self.time)):
+                print("time-step: ",t)
                 for i in range(len(mmap[0])):
                     map_loc = np.where(mapping == i) # Returns 2d array with lat & lon location for that m-map row
-                    gridmap[t,map_loc[0].astype(np.int32),map_loc[1].astype(np.int32)] = mmap[t][i]
-            
+                    gridmap[t,map_loc[0], map_loc[1]] = mmap[t][i]
+                
+                # Using list comprehension (THIS IS SLOWER!!)
+                #[gridmap[t, mmap[t][np.where(mapping == i)[0]].astype(np.int32), mmap[t][np.where(mapping == i)[1]].astype(np.int32)] for i in range(len(mmap[0]))]
+                
             # Incase timesteps are missing:
             if len(gridmap) < 27:
                 newtsteps = 27 - len(gridmap)
