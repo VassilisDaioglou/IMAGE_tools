@@ -64,9 +64,7 @@ class m2nc:
         # Create map linking m-maps to lat/lon matrix
         mapping = self.get_mmapping()
         gridmap = self.get_gridmap(self.mmap, mapping, self.timexist)
-        gridmap = np.ma.masked_where(self.maskmap[0] == self.maskmap.fill_value, gridmap) 
-        gridmap = ma.masked_values(gridmap, self.maskmap.fill_value)
-
+        
         # *** WRITE OUTPUT ***
         writemap = WriteMaps(gridmap, self.map_title, self.map_var, self.map_unit, self.map_outname)
         writemap.maptime2nc() if self.timexist else writemap.map2nc()
@@ -114,11 +112,11 @@ class m2nc:
         lats[:] = 90. - (180./nlats)*np.arange(nlats) # north pole to south pole
         lons[:] = -180. + (180./nlats)*np.arange(nlons) # 180degree longitude eastward
 
-        mapping = np.zeros((360,720))
+        mapping = []
         for i in range(len(self.grdfile)):   # per row
             loc_lon = np.where(lons == self.grdfile[i,0])
             loc_lat = np.where(lats == self.grdfile[i,1])
-            mapping[loc_lat[0].astype(np.int32),loc_lon[0].astype(np.int32)] = i
+            mapping.append([loc_lat[0].astype(np.int32), loc_lon[0].astype(np.int32)])
         return mapping
 
     def get_gridmap(self, mmap, mapping, existtime):
@@ -126,13 +124,14 @@ class m2nc:
         For each row in m-map get the map's value 
         Put that value in relevant location of new lat/lon matrix
         using the mapping matrix
+
+        The original gridmap is declared as an NaN grid, so that netCDF can automatically apply a mask.
         """
         if existtime:
-            gridmap = np.zeros((len(self.time), 360, 720))
+            gridmap = np.zeros((len(self.time), 360, 720)) * np.nan
             for t in range(len(self.time)):
-                print("time-step: ",t)
                 for i in range(len(mmap[0])):
-                    map_loc = np.where(mapping == i) # Returns 2d array with lat & lon location for that m-map row
+                    map_loc = mapping[i]
                     gridmap[t,map_loc[0], map_loc[1]] = mmap[t][i]
                 
                 # Using list comprehension (THIS IS SLOWER!!)
@@ -145,9 +144,9 @@ class m2nc:
                 newtdata[:,:,:] = gridmap[0,:,:]
                 gridmap = np.insert(gridmap,0,newtdata,axis=0)
         else:
-            gridmap = np.zeros((360,720))
+            gridmap = np.zeros((360,720)) * np.nan
             for i in range(len(mmap[0])):
-                map_loc = np.where(mapping == i) # Returns 2d array with lat & lon location for that m-map row
-                gridmap[map_loc[0].astype(np.int32),map_loc[1].astype(np.int32)] = mmap[0][i]
+                map_loc = mapping[i]
+                gridmap[map_loc[0],map_loc[1]] = mmap[0][i]
 
         return gridmap

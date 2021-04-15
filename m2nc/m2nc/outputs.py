@@ -36,11 +36,14 @@ class WriteMaps:
         
         try: 
             repository = subprocess.check_output(['git', 'remote', '-v'])
+            repository = repository.split()[1]
+             
         except:
             repository = 'Not versioned'
         
         try:
             revision = subprocess.check_output(['git', 'rev-parse', 'HEAD'])
+            revision = revision.split()[0]
         except:
             revision = 'Not versioned'
         

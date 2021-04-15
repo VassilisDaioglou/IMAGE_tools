@@ -18,7 +18,10 @@ output_maps_list = [
             ['mz_EmisType2ST_pkm.out','Maize Gradual Emission Factor','MAIZE_EF_Gradual','kgCO2/km^2','MAIZE_EF_Gradual',False],
             ['oc_EmisType2ST_pkm.out','Oilcrops Gradual Emission Factor','OILCR_EF_Gradual','kgCO2/km^2','OILCR_EF_Gradual',False],
             ]
-        
+            
+ # TODO Read grid coordinates here, instead of during every loop.
+ # Also, it seems like row 5 of grid coordinates are also read in....shouldnt!
+
 for outmap in output_maps_list:
     write_output = m2nc(outmap[0], outmap[1], outmap[2], outmap[3], outmap[4], outmap[5])
     write_output.run_m2nc() 
