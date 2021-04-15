@@ -7,7 +7,6 @@ Each instance of this class converts an m-map to a netCDFmap
 """
 import netCDF4
 import numpy as np
-import numpy.ma as ma
 from pym import read_mym, load_mym
 from dirs import InputDir
 from outputs import WriteMaps
@@ -16,9 +15,12 @@ class m2nc:
     """
     Class which converts m-maps to netCDF maps.
 
-    This class reads in required details of an m-map. It then converts this
-    map from a vector into a grid, and subsequently outputs it, including
-    metadata into a netCDF map.
+    This class reads in required details of an m-map.
+    It also reads in a 'mapping' array which links each m-map row to a x,y coordinate
+    
+    Subsequently, this class converts the m-map from a vector into a grid. 
+    
+    Then it  outputs it as a netCDF map, including relevant metadata.
     """
     def __init__(self, mmap_in, map_title, map_var, map_unit, map_outname, timexist, mapping):
         self.mmap_in = mmap_in
@@ -31,10 +33,7 @@ class m2nc:
 
     def run_m2nc(self):
         """
-        Procedure which m-maps (vectors) to to grids and subsequently to netCDF maps
-
-        First: Map m-map vector to grid using a file (grdfile) linking m-map cells to coordinates
-        This produces a "mapping"
+        First: Read in the m-map
 
         Second: Using the "mapping", m-maps are converted to grid
 
@@ -58,11 +57,9 @@ class m2nc:
 
     def get_gridmap(self, mmap, mapping, existtime):
         """
-        For each row in m-map get the map's value 
-        Put that value in relevant location of new lat/lon matrix
-        using the mapping matrix
-
-        The original gridmap is declared as an NaN grid, so that netCDF can automatically apply a mask.
+        For each row in m-map get the required coordinates on an x,y grid 
+        
+        The resultant gridmap is declared as an NaN grid, so that netCDF can automatically apply a mask.
         """
         if existtime:
             gridmap = np.zeros((len(self.time), 360, 720)) * np.nan
@@ -87,8 +84,9 @@ class m2nc:
 
 def get_mmapping(grdfile): 
     """
-    Returns a matrix which maps the rows of m-maps 
-    on a grid of latitude/longitude
+    Returns a list which links the rows of m-maps 
+    to an x,y coordinate based on the latutudes and longitudes in
+    a defining grdfile
     """
     nlats = 360
     nlons = 720
