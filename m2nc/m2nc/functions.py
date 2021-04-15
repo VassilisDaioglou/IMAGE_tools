@@ -38,10 +38,6 @@ class m2nc:
         # *** DATA NEEDED TO GET THE m-to-netCDF MAPPING ***
         self.grdfile  = np.loadtxt(InputDir.data_dir + 'mcoord.txt')
         
-        # Get map for masking
-        self.maskmap = netCDF4.Dataset(InputDir.data_dir + 'GNLCT_30MIN.nc')
-        self.maskmap = self.maskmap.variables['GNLCT_30MIN'][:]
-
         # Produce NC maps
         self.make_nc_map()
 
