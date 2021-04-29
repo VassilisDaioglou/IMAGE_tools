@@ -51,9 +51,8 @@ class m2nc:
         
         # *** WRITE OUTPUT ***
         print("\tWriting netCDF output")
-        writemap = WriteMaps(gridmap, self.map_title, self.map_var, self.map_unit, self.map_outname)
-        writemap.maptime2nc() if self.timexist else writemap.map2nc()
-    
+        writemap = WriteMaps(gridmap, self.map_title, self.map_var, self.map_unit, self.map_outname, self.timexist)
+        writemap.maptime2nc()
 
     def get_gridmap(self, mmap, mapping, existtime):
         """
