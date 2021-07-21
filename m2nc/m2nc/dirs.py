@@ -4,10 +4,10 @@ Input and Output directories
 """
 class InputDir:
     data_dir = str("data\\")
-    m_in_dir = str("m\\input\\")
-    nc_in_dir = str("netcdf\\input\\")
+    m_in_dir = str("input\\m\\")
+    nc_in_dir = str("input\\netcdf\\")
 
 class OutputDir:
-    nc_out_dir = str("netcdf\\output\\")
-    m_out_dir = str("m\\output\\")
+    nc_out_dir = str("output\\netcdf\\")
+    m_out_dir = str("output\\m\\")
     

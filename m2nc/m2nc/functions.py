@@ -7,9 +7,34 @@ Each instance of this class converts an m-map to a netCDFmap
 """
 import netCDF4
 import numpy as np
+import numpy.ma as ma
 from pym import read_mym, load_mym
 from dirs import InputDir
 from outputs import WriteMaps
+
+# Constants
+class Constants: 
+    NC = 66663
+
+def get_mmapping(grdfile): 
+    """
+    Returns a list which links the rows of m-maps 
+    to an x,y coordinate based on the latutudes and longitudes in
+    a defining grdfile
+    """
+    nlats = 360
+    nlons = 720
+    lats = np.zeros(nlats)
+    lons = np.zeros(nlons)
+    lats[:] = 90. - (180./nlats)*np.arange(nlats) # north pole to south pole
+    lons[:] = -180. + (180./nlats)*np.arange(nlons) # 180degree longitude eastward
+
+    mapping = []
+    for i in range(len(grdfile)):   # per row
+        loc_lon = np.where(lons == grdfile[i,0])
+        loc_lat = np.where(lats == grdfile[i,1])
+        mapping.append([loc_lat[0].astype(np.int32), loc_lon[0].astype(np.int32)])
+    return mapping
 
 class m2nc:
     """
@@ -81,22 +106,88 @@ class m2nc:
 
         return gridmap
 
-def get_mmapping(grdfile): 
+class nc2m:
     """
-    Returns a list which links the rows of m-maps 
-    to an x,y coordinate based on the latutudes and longitudes in
-    a defining grdfile
-    """
-    nlats = 360
-    nlons = 720
-    lats = np.zeros(nlats)
-    lons = np.zeros(nlons)
-    lats[:] = 90. - (180./nlats)*np.arange(nlats) # north pole to south pole
-    lons[:] = -180. + (180./nlats)*np.arange(nlons) # 180degree longitude eastward
+    Class which converts netCDF maps to m-maps.
 
-    mapping = []
-    for i in range(len(grdfile)):   # per row
-        loc_lon = np.where(lons == grdfile[i,0])
-        loc_lat = np.where(lats == grdfile[i,1])
-        mapping.append([loc_lat[0].astype(np.int32), loc_lon[0].astype(np.int32)])
-    return mapping
+    This class reads in required details of an ncetCDF.
+    It also reads in a 'mapping' array which links each m-map row to a x,y coordinate
+    
+    Subsequently, this class converts the grid of a netCDF map to a vector. 
+    
+    Then it  outputs it as an m-map.
+    """
+    def __init__(self, ncmap_in, map_var, map_outname, timexist, mapping):
+        self.ncmap_in = ncmap_in
+        self.map_var = map_var
+        self.map_outname = map_outname
+        self.timexist = timexist
+        self.mapping = mapping
+
+    def run_nc2m(self):
+        """
+        First: Read in the nc-map
+
+        Second: Using the "mapping", m-maps are converted to grid
+
+        Third: Output this grid as a netCDF file  
+        """
+        print("\tReading in nc-map")
+        self.ncmap = self.read_map(InputDir.nc_in_dir + self.ncmap_in, self.map_var)                      # km^2, [NLATS,NLONS], Area per grid cell
+
+        # Create map linking m-maps to lat/lon matrix
+        print("\tCreating vector map")
+        vectormap = self.get_vectormap(self.ncmap, self.mapping, self.timexist)
+        
+        # *** WRITE OUTPUT ***
+        print("\tWriting netCDF output")
+        writemap = WriteMaps(vectormap, self.map_outname, self.timexist)
+        writemap.nctime2m()
+    
+    def read_map(self, file_loc, var_name, type='float32', maskvalue=-9999):
+        """
+        Returns a numpy array of the variable in a netCDF file
+        Inputs:
+        1. netCDF File 
+        2. Variable name
+        3. Data type of output. float64 by default
+        4. Mask value: -9999 by default
+
+        Output:
+        Masked numpy array of correct dtype and mask fill_value
+
+        Comment:
+        Have to store a pre-corrected version of the map
+        because the fill_value changes during operations.
+        This is a numpy bug, see: https://github.com/numpy/numpy/issues/3762
+        """
+        nc_map = netCDF4.Dataset(file_loc)
+        var_in = nc_map.variables[var_name][:]
+        var_array = np.array(var_in, dtype=type)
+        var_array = np.ma.masked_where(var_in == var_in.fill_value, var_array)
+        var_array = ma.masked_values(var_array, maskvalue)
+        
+        return var_array
+
+    def get_vectormap(self, ncmap, mapping, existtime):
+            """
+            For each row in m-map get the required coordinates on an x,y grid 
+            
+            Lookup ncmap value at these coordinates, and assign to vectormap row
+            
+            The resultant gridmap is declared as an NaN grid, so that netCDF can automatically apply a mask.
+            """
+            if existtime:
+                vectormap = np.zeros((len(self.ncmap[0]), Constants.NC)) * np.nan
+                for t in range(len(self.ncmap[0])):
+                    for i in range(Constants.NC):
+                        map_loc = mapping[i]
+                        vectormap[t,i] = ncmap[t,map_loc[0], map_loc[1]]
+                    
+            else:
+                vectormap = np.zeros(Constants.NC) * np.nan
+                for i in range(Constants.NC):
+                    map_loc = mapping[i]
+                    vectormap[i] = ncmap[map_loc[0], map_loc[1]]
+
+            return vectormap
