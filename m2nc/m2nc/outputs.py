@@ -84,7 +84,7 @@ class WriteMaps:
         Time dimension labels are wrong.
         """
         # Create nc-file with correct dimensions
-        ncfile = netCDF4.Dataset(OutputDir.out_dir + self.outname + '.nc', mode='w', format='NETCDF4_CLASSIC')
+        ncfile = netCDF4.Dataset(OutputDir.nc_out_dir + self.outname + '.nc', mode='w', format='NETCDF4_CLASSIC')
         
         if self.timexist:
             lat_dim = ncfile.createDimension('lat', len(self.outmap[0])) # latitude axis

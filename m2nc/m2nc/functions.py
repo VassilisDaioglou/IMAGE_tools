@@ -41,9 +41,9 @@ class m2nc:
         """
         print("\tReading in m-map")
         if self.timexist:
-            self.mmap, self.time = read_mym(self.mmap_in, path= InputDir.in_dir)
+            self.mmap, self.time = read_mym(self.mmap_in, path= InputDir.m_in_dir)
         else:
-            self.mmap = read_mym(self.mmap_in, path= InputDir.in_dir)
+            self.mmap = read_mym(self.mmap_in, path= InputDir.m_in_dir)
 
         # Create map linking m-maps to lat/lon matrix
         print("\tCreating gridded map")
