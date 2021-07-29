@@ -8,8 +8,8 @@ Each instance of this class converts an m-map to a netCDFmap
 import netCDF4
 import numpy as np
 import numpy.ma as ma
-from pym import read_mym, load_mym
-from dirs import InputDir
+from pym import read_mym, load_mym, write_mym
+from dirs import InputDir, OutputDir
 from outputs import WriteMaps
 
 # Constants
@@ -140,10 +140,13 @@ class nc2m:
         vectormap = self.get_vectormap(self.ncmap, self.mapping, self.timexist)
         
         # *** WRITE OUTPUT ***
-        print("\tWriting netCDF output")
-        writemap = WriteMaps(vectormap, self.map_outname, self.timexist)
-        writemap.nctime2m()
-    
+        print("\tWriting m output")
+        if self.timexist:
+            timesteps=range(len(self.ncmap))
+            write_mym(vectormap, years=timesteps, variable_name="data", filename=self.map_outname, filepath= OutputDir.m_out_dir, comment="Empty!")
+        else:
+            write_mym(vectormap, variable_name="data", filename=self.map_outname, filepath= OutputDir.m_out_dir, comment="Empty!")
+
     def read_map(self, file_loc, var_name, type='float32', maskvalue=-9999):
         """
         Returns a numpy array of the variable in a netCDF file
@@ -178,8 +181,9 @@ class nc2m:
             The resultant gridmap is declared as an NaN grid, so that netCDF can automatically apply a mask.
             """
             if existtime:
-                vectormap = np.zeros((len(self.ncmap[0]), Constants.NC)) * np.nan
-                for t in range(len(self.ncmap[0])):
+                vectormap = np.zeros((len(self.ncmap), Constants.NC)) * np.nan
+                for t in range(len(self.ncmap)):
+                    print("timestep: ", t)
                     for i in range(Constants.NC):
                         map_loc = mapping[i]
                         vectormap[t,i] = ncmap[t,map_loc[0], map_loc[1]]
