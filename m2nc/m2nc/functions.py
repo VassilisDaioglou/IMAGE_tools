@@ -15,6 +15,7 @@ from outputs import WriteMaps
 # Constants
 class Constants: 
     NC = 66663
+    year_subset = [1, 30, 50, 80, 130]  # Indexes for years 1971, 2000, 2020, 2050, 2100
 
 def get_mmapping(grdfile): 
     """
@@ -117,11 +118,13 @@ class nc2m:
     
     Then it  outputs it as an m-map.
     """
-    def __init__(self, ncmap_in, map_var, map_outname, timexist, mapping):
+    def __init__(self, ncmap_in, map_var, map_outname, timexist, comment, multiplier, mapping):
         self.ncmap_in = ncmap_in
         self.map_var = map_var
         self.map_outname = map_outname
         self.timexist = timexist
+        self.comment = comment
+        self.multiplier = multiplier
         self.mapping = mapping
 
     def run_nc2m(self):
@@ -133,20 +136,31 @@ class nc2m:
         Third: Output this grid as a netCDF file  
         """
         print("\tReading in nc-map")
-        self.ncmap = self.read_map(InputDir.nc_in_dir + self.ncmap_in, self.map_var)                      # km^2, [NLATS,NLONS], Area per grid cell
+        self.ncmap_in = self.read_map(InputDir.nc_in_dir + self.ncmap_in, self.map_var) * self.multiplier
 
+        # Only take values for 1971, 2000, 2020, 2050 and 2100 if nc data is annual
+        if self.timexist and len(self.ncmap_in) > 10:
+            self.ncmap = np.take(self.ncmap_in, Constants.year_subset, axis=0)
+        else: 
+            self.ncmap = self.ncmap_in
+        
         # Create map linking m-maps to lat/lon matrix
         print("\tCreating vector map")
         vectormap = self.get_vectormap(self.ncmap, self.mapping, self.timexist)
         
         # *** WRITE OUTPUT ***
         print("\tWriting m output")
+        # WRITING M OUTPUT IS NOT WORKING, SO INSTEAD WRITING AS .csv"
         if self.timexist:
             timesteps=range(len(self.ncmap))
-            write_mym(vectormap, years=timesteps, variable_name="data", filename=self.map_outname, filepath= OutputDir.m_out_dir, comment="Empty!")
+            write_mym(data=vectormap, years=timesteps, variable_name="data", filename=self.map_outname, path= OutputDir.m_out_dir, comment=self.comment)
         else:
-            write_mym(vectormap, variable_name="data", filename=self.map_outname, filepath= OutputDir.m_out_dir, comment="Empty!")
-
+            write_mym(data=vectormap, variable_name="data", filename=self.map_outname, path= OutputDir.m_out_dir, comment=self.comment)
+        
+        # WRITING AS .csv
+        print("\tWriting .csv output")
+        np.savetxt(OutputDir.csv_out_dir+self.map_outname+'.csv', vectormap, delimiter=',')
+        
     def read_map(self, file_loc, var_name, type='float32', maskvalue=-9999):
         """
         Returns a numpy array of the variable in a netCDF file
@@ -181,17 +195,16 @@ class nc2m:
             The resultant gridmap is declared as an NaN grid, so that netCDF can automatically apply a mask.
             """
             if existtime:
-                vectormap = np.zeros((len(self.ncmap), Constants.NC)) * np.nan
+                vectormap = np.zeros((len(self.ncmap), Constants.NC))
                 for t in range(len(self.ncmap)):
-                    print("timestep: ", t)
+                    print("\t\ttimestep: ", t)
                     for i in range(Constants.NC):
                         map_loc = mapping[i]
                         vectormap[t,i] = ncmap[t,map_loc[0], map_loc[1]]
-                    
+                        vectormap[np.isnan(vectormap)] = 0
             else:
-                vectormap = np.zeros(Constants.NC) * np.nan
+                vectormap = np.zeros(Constants.NC)
                 for i in range(Constants.NC):
                     map_loc = mapping[i]
-                    vectormap[i] = ncmap[map_loc[0], map_loc[1]]
-
+                    vectormap[i] = ncmap[map_loc[0], map_loc[1]].data
             return vectormap

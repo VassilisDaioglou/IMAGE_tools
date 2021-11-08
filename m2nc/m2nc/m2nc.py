@@ -36,12 +36,16 @@ for outmap in m2nc_maps_list:
 
 print("\n***Runningnc2m***")
 # List of maps to convert from nc to m
-    # 1. nc-map file name, 2. Variable Name, 3. Output Name, 4. Has time dimension (boolean)
+    # 1. nc-map file name, 2. Variable Name, 3. Output Name, 4. Has time dimension (boolean), M-file header comment,Multiplier
 nc2m_maps_list = [
-    ['consumption_waterstress_majorbasins.nc','waterstress','consumption_waterstress_majorbasins',True]
+    #['Species_loss_factors_total.nc','layer','Species_loss_factor',False,"Species loss factors (terrestrial vertebrates), 1e9 10log loss/Ha",1e9],
+    ['consumption_waterstress_majorbasins.nc','waterstress','consumption_waterstress_majorbasins',True,"Consumption Waterstress Major Basins",1],
+    ['consumption_waterstress_smallbasins.nc','waterstress','consumption_waterstress_smallbasins',True,"Consumption Waterstress Small Basins",1],
+    ['withdrawals_waterstress_majorbasins.nc','waterstress','withdrawals_waterstress_majorbasins',True,"Withdrawals Waterstress Major Basins",1],
+    ['withdrawals_waterstress_smallerbasins.nc','waterstress','withdrawals_waterstress_smallerbasins',True,"Withdrawals Waterstress Small Basins",1]
 ]
 
 for outmap in nc2m_maps_list:
     print("Processing Map: ", outmap[1])
-    write_nc2m = nc2m(outmap[0], outmap[1], outmap[2], outmap[3], mapping)
+    write_nc2m = nc2m(outmap[0], outmap[1], outmap[2], outmap[3], outmap[4], outmap[5], mapping)
     write_nc2m.run_nc2m() 

@@ -10,4 +10,5 @@ class InputDir:
 class OutputDir:
     nc_out_dir = str("output\\netcdf\\")
     m_out_dir = str("output\\m\\")
+    csv_out_dir = str("output\\csv\\")
     
