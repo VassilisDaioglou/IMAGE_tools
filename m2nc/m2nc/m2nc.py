@@ -1,9 +1,9 @@
 """
-Script to convert m-maps to netCDF maps
+Script to convert between M and netCDF maps
 
 Author: Vassilis Daioglou
-Date: April 2021
-    - July 2021: Added nc2m functionality
+Date:   April 2021: m2nc functionality
+        July 2021: Added nc2m functionality
 """
 import numpy as np
 from functions import m2nc, nc2m, get_mmapping
@@ -38,11 +38,11 @@ print("\n***Running nc2m***")
 # List of maps to convert from nc to m
     # 1. nc-map file name, 2. Variable Name, 3. Output Name, 4. Has time dimension (boolean), M-file header comment,Multiplier
 nc2m_maps_list = [
-    ['Species_loss_factors_total.nc','layer','Species_loss_factor',False,"Species loss factors (terrestrial vertebrates), 1e9 10log loss/Ha",1e9],
-    ['consumption_waterstress_majorbasins.nc','waterstress','consumption_waterstress_majorbasins',True,"Consumption Waterstress Major Basins",1],
-    ['consumption_waterstress_smallbasins.nc','waterstress','consumption_waterstress_smallbasins',True,"Consumption Waterstress Small Basins",1],
-    ['withdrawals_waterstress_majorbasins.nc','waterstress','withdrawals_waterstress_majorbasins',True,"Withdrawals Waterstress Major Basins",1],
-    ['withdrawals_waterstress_smallerbasins.nc','waterstress','withdrawals_waterstress_smallerbasins',True,"Withdrawals Waterstress Small Basins",1]
+    ['Species_loss_factors_total.nc','layer','Species_loss_factor',False,"Species loss factors (terrestrial vertebrates), 1e9 10log loss/Ha",1e9]
+    #['consumption_waterstress_majorbasins.nc','waterstress','consumption_waterstress_majorbasins',True,"Consumption Waterstress Major Basins",1],
+    #['consumption_waterstress_smallbasins.nc','waterstress','consumption_waterstress_smallbasins',True,"Consumption Waterstress Small Basins",1],
+    #['withdrawals_waterstress_majorbasins.nc','waterstress','withdrawals_waterstress_majorbasins',True,"Withdrawals Waterstress Major Basins",1],
+    #['withdrawals_waterstress_smallerbasins.nc','waterstress','withdrawals_waterstress_smallerbasins',True,"Withdrawals Waterstress Small Basins",1]
 ]
 
 for outmap in nc2m_maps_list:
