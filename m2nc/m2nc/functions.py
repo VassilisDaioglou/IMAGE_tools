@@ -150,9 +150,8 @@ class nc2m:
         
         # *** WRITE OUTPUT ***
         print("\tWriting m output")
-        # WRITING M OUTPUT IS NOT WORKING, SO INSTEAD WRITING AS .csv"
         if self.timexist:
-            timesteps=range(len(self.ncmap))
+            timesteps=np.array(range(len(self.ncmap)))
             write_mym(data=vectormap, years=timesteps, variable_name="data", filename=self.map_outname, path= OutputDir.m_out_dir, comment=self.comment)
         else:
             write_mym(data=vectormap, variable_name="data", filename=self.map_outname, path= OutputDir.m_out_dir, comment=self.comment)
