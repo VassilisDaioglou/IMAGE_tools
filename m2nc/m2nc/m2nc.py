@@ -1,9 +1,10 @@
 """
-Script to convert between M and netCDF maps
+Script to produce maps and convert between formats (m & netCDF)
 
 Author: Vassilis Daioglou
 Date:   April 2021: m2nc functionality
         July 2021: Added nc2m functionality
+        November 2021: Added list2map (m&netCDF) functionality
 """
 import numpy as np
 from flags import RunFunction
@@ -54,6 +55,45 @@ def main(run):
             print("Processing Map: ", outmap[5])
             write_nc2m = nc2m(outmap[0], outmap[1], outmap[2], outmap[3], outmap[4], outmap[5], mapping)
             write_nc2m.run_nc2m() 
+    
+    if run.list2m or run.list2nc:
+        print("\n***Start processing list data***")
+        from outputs import WriteMaps
+        import pandas as pd
+        # First have to read in nc map with country IDs
+        print("\tReading in nc country-map")
+        cntry_map = nc2m.read_map('blank positional argument', InputDir.data_dir + 'countries_grid.nc', 'layer')
+        print("\tReading in listed data")
+        # Second have to read in list data with appropriate format:
+        list_df = pd.read_excel(InputDir.list_in_dir + 'Mapping_countries_grid_feasibility.xlsx', sheet_name = 'Mapping', header = 1)
+
+        # For every country ID on cntry_map, find required value on list_df
+        #list_df.loc[list_df['grdID'] == 2, 'spfs_cor']
+        print("\tAssigning listed data to gridded map")
+        gridmap = np.zeros((360, 720))
+        
+        #cntry_map[cntry_map.mask] = cntry_map.fill_value    # have to make sure that the fill value is returned on masked cells
+        #gridmap[:,:] = list_df.loc[list_df['grdID'] == cntry_map[:,:], 'spfs_cor'].iloc[0]
+        
+        for i in range(360):
+            for j in range(720):
+                print("Coordinates: ", i, ', ', j)
+                cntry_map[cntry_map.mask] = cntry_map.fill_value    # have to make sure that the fill value is returned on masked cells
+                gridmap[i,j] = list_df.loc[list_df['grdID'] == cntry_map[i,j], 'spfs_cor'].iloc[0]
+        
+        map_title = 'Socio-political feasability score'
+        map_var = 'spfs'
+        map_unit = '-'
+        map_outname = 'socio-political_feasability_score'
+        timexist = False
+
+        print("\tWriting netCDF output")
+        #writemap = WriteMaps(gridmap, self.map_title, self.map_var, self.map_unit, self.map_outname, self.timexist)
+        writemap = WriteMaps(gridmap, map_title, map_var, map_unit, map_outname, timexist)
+        writemap.maptime2nc()
+
+
+        print("done")
 
 if __name__ == "__main__":
     run = RunFunction()

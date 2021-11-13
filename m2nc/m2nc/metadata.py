@@ -1,3 +1,3 @@
-__name__ = "m2nc"
-__version__ = "1.5"
+__name__ = "Map Processor"
+__version__ = "2.0"
 __reference__ = "None"
