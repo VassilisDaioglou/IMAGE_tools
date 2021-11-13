@@ -9,7 +9,7 @@ Date:   April 2021: m2nc functionality
 import numpy as np
 from flags import RunFunction
 from functions import m2nc, nc2m, get_mmapping
-from dirs import InputDir
+from dirs import InputDir, OutputDir
 
 
 def main(run):
@@ -63,37 +63,40 @@ def main(run):
         # First have to read in nc map with country IDs
         print("\tReading in nc country-map")
         cntry_map = nc2m.read_map('blank positional argument', InputDir.data_dir + 'countries_grid.nc', 'layer')
-        print("\tReading in listed data")
+        
         # Second have to read in list data with appropriate format:
+        print("\tReading in listed data")
         list_df = pd.read_excel(InputDir.list_in_dir + 'Mapping_countries_grid_feasibility.xlsx', sheet_name = 'Mapping', header = 1)
 
+        # Identify column in list to be mapped (i.e. variable)
+        map_var = 'spfs_cor'
+
         # For every country ID on cntry_map, find required value on list_df
-        #list_df.loc[list_df['grdID'] == 2, 'spfs_cor']
         print("\tAssigning listed data to gridded map")
         gridmap = np.zeros((360, 720))
-        
-        #cntry_map[cntry_map.mask] = cntry_map.fill_value    # have to make sure that the fill value is returned on masked cells
-        #gridmap[:,:] = list_df.loc[list_df['grdID'] == cntry_map[:,:], 'spfs_cor'].iloc[0]
         
         for i in range(360):
             for j in range(720):
                 print("Coordinates: ", i, ', ', j)
                 cntry_map[cntry_map.mask] = cntry_map.fill_value    # have to make sure that the fill value is returned on masked cells
-                gridmap[i,j] = list_df.loc[list_df['grdID'] == cntry_map[i,j], 'spfs_cor'].iloc[0]
+                gridmap[i,j] = list_df.loc[list_df['grdID'] == cntry_map[i,j], map_var].iloc[0]
         
-        map_title = 'Socio-political feasability score'
-        map_var = 'spfs'
-        map_unit = '-'
-        map_outname = 'socio-political_feasability_score'
-        timexist = False
+        gridmap = np.ma.masked_where(gridmap == cntry_map.fill_value, gridmap)
 
-        print("\tWriting netCDF output")
-        #writemap = WriteMaps(gridmap, self.map_title, self.map_var, self.map_unit, self.map_outname, self.timexist)
-        writemap = WriteMaps(gridmap, map_title, map_var, map_unit, map_outname, timexist)
-        writemap.maptime2nc()
+        
+        if run.list2nc:
+             # 1. Map Tital, 2. Variable Name, 3. Unit, 4. Output Name, 5. Time exit (boolean)
+            list2nc_maps_list = ['Socio-political feasability score',map_var,'-','socio-political_feasability_score',False]
 
-
-        print("done")
+            print("\tWriting netCDF output")
+            writemap = WriteMaps(gridmap, list2nc_maps_list[0], list2nc_maps_list[1], list2nc_maps_list[2], list2nc_maps_list[3], list2nc_maps_list[4])
+            writemap.maptime2nc()
+        
+        if run.list2m:
+            from pym import write_mym
+            vectormap = nc2m.get_vectormap('missing positional argument',gridmap, mapping, False)
+            write_mym(data=vectormap, variable_name=map_var, filename='socio-political_feasability_score', path= OutputDir.m_out_dir, comment='Socio-political feasability score from Roe et al (2021)')
+        
 
 if __name__ == "__main__":
     run = RunFunction()
