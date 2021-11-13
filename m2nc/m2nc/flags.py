@@ -7,7 +7,7 @@ class RunFunction:
     list2m: Converts listed data (i.e. country data in excel) to m-map
     list2nc: Converts listed data (i.e. country data in excel) to netCDF
     """
-    def __init__(self, m2nc=False, nc2m=False, list2m=False, list2nc=True):
+    def __init__(self, m2nc=False, nc2m=True, list2m=False, list2nc=False):
         self.m2nc = m2nc
         self.nc2m = nc2m
         self.list2m = list2m
