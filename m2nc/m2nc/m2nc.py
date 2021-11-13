@@ -75,14 +75,13 @@ def main(run):
         print("\tAssigning listed data to gridded map")
         gridmap = np.zeros((360, 720))
         
+        cntry_map[cntry_map.mask] = cntry_map.fill_value    # have to make sure that the fill value is returned on masked cells
         for i in range(360):
             for j in range(720):
                 print("Coordinates: ", i, ', ', j)
-                cntry_map[cntry_map.mask] = cntry_map.fill_value    # have to make sure that the fill value is returned on masked cells
                 gridmap[i,j] = list_df.loc[list_df['grdID'] == cntry_map[i,j], map_var].iloc[0]
-        
-        gridmap = np.ma.masked_where(gridmap == cntry_map.fill_value, gridmap)
 
+        gridmap = np.ma.masked_where(gridmap == cntry_map.fill_value, gridmap)
         
         if run.list2nc:
              # 1. Map Tital, 2. Variable Name, 3. Unit, 4. Output Name, 5. Time exit (boolean)
@@ -97,6 +96,7 @@ def main(run):
             vectormap = nc2m.get_vectormap('missing positional argument',gridmap, mapping, False)
             write_mym(data=vectormap, variable_name=map_var, filename='socio-political_feasability_score', path= OutputDir.m_out_dir, comment='Socio-political feasability score from Roe et al (2021)')
         
+        print("done")
 
 if __name__ == "__main__":
     run = RunFunction()
