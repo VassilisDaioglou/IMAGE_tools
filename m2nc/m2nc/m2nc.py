@@ -42,20 +42,20 @@ def main(run):
     if run.nc2m:
         print("\n***Running nc2m***")
         # List of maps to convert from nc to m
-            # 1. nc-map file name, 2. Variable Name, 3. Output Name, 4. Has time dimension (boolean), 5. M-file header comment, 6. Multiplier
+            # 1. nc-map file name, 2. Variable Name, 3. Output Name, 4. Has time dimension (boolean), 5. Timestep, 6. 3rd Dimension index -in case of filtering (boolean), 7. M-file header comment, 7. Multiplier
         nc2m_maps_list = [
-            ['GLANDCOVERDETAIL_30MIN_double_AICHI.nc','GLANDCOVERDETAIL_30MIN','Double_AICHI_constraint',True,'Double-AICHI Biodiversity Constraint',1],
+            ['GLANDCOVERDETAIL_30MIN_double_AICHI.nc','GLANDCOVERDETAIL_30MIN','Double_AICHI_constraint',True, 5, 5,'Double-AICHI Biodiversity Constraint',1],
             #['socio-political_feasability_score.nc','socio-political_feasability_score','socio-political_feasability_score',False,'Socio-political feasability score from Roe et al (2021)',1]
             #['Species_loss_factors_total.nc','layer','Species_loss_factor',False,"Species loss factors (terrestrial vertebrates), 1e9 10log loss/Ha",1e9]
-            #['consumption_waterstress_majorbasins.nc','waterstress','consumption_waterstress_majorbasins',True,"Consumption Waterstress Major Basins",1],
-            #['consumption_waterstress_smallbasins.nc','waterstress','consumption_waterstress_smallbasins',True,"Consumption Waterstress Small Basins",1],
-            #['withdrawals_waterstress_majorbasins.nc','waterstress','withdrawals_waterstress_majorbasins',True,"Withdrawals Waterstress Major Basins",1],
-            #['withdrawals_waterstress_smallerbasins.nc','waterstress','withdrawals_waterstress_smallerbasins',True,"Withdrawals Waterstress Small Basins",1]
+            #['consumption_waterstress_majorbasins.nc','waterstress','consumption_waterstress_majorbasins',True,1,"Consumption Waterstress Major Basins",1],
+            #['consumption_waterstress_smallbasins.nc','waterstress','consumption_waterstress_smallbasins',True,1,"Consumption Waterstress Small Basins",1],
+            #['withdrawals_waterstress_majorbasins.nc','waterstress','withdrawals_waterstress_majorbasins',True,1,"Withdrawals Waterstress Major Basins",1],
+            #['withdrawals_waterstress_smallerbasins.nc','waterstress','withdrawals_waterstress_smallerbasins',True,1,"Withdrawals Waterstress Small Basins",1]
         ]
 
         for outmap in nc2m_maps_list:
             print("Processing Map: ", outmap[5])
-            write_nc2m = nc2m(outmap[0], outmap[1], outmap[2], outmap[3], outmap[4], outmap[5], mapping)
+            write_nc2m = nc2m(outmap[0], outmap[1], outmap[2], outmap[3], outmap[4], outmap[5], outmap[6], outmap[7], mapping)
             write_nc2m.run_nc2m() 
     
     if run.list2m or run.list2nc:

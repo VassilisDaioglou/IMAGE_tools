@@ -16,6 +16,7 @@ from outputs import WriteMaps
 class Constants: 
     NC = 66663
     year_subset = [1, 30, 50, 80, 130]  # Indexes for years 1971, 2000, 2020, 2050, 2100
+    five_year_subset = [0, 6, 10, 16, 26]  # Indexes for years 1971, 2000, 2020, 2050, 2100
 
 def get_mmapping(grdfile): 
     """
@@ -118,11 +119,13 @@ class nc2m:
     
     Then it  outputs it as an m-map.
     """
-    def __init__(self, ncmap_in, map_var, map_outname, timexist, comment, multiplier, mapping):
+    def __init__(self, ncmap_in, map_var, map_outname, timexist, timestep, dim3_index, comment, multiplier, mapping):
         self.ncmap_in = ncmap_in
         self.map_var = map_var
         self.map_outname = map_outname
         self.timexist = timexist
+        self.timestep = timestep
+        self.dim3_index = dim3_index
         self.comment = comment
         self.multiplier = multiplier
         self.mapping = mapping
@@ -138,13 +141,23 @@ class nc2m:
         print("\tReading in nc-map")
         self.ncmap_in = self.read_map(InputDir.nc_in_dir + self.ncmap_in, self.map_var) * self.multiplier
 
-        print("stop")
         # Only take values for 1971, 2000, 2020, 2050 and 2100 if nc data is annual
-        if self.timexist and len(self.ncmap_in) > 10:
+        if self.timexist and self.timestep == 1:
             self.ncmap = np.take(self.ncmap_in, Constants.year_subset, axis=0)
+        elif self.timexist and self.timestep == 5:
+            self.ncmap = np.take(self.ncmap_in, Constants.five_year_subset, axis=0)
+        
         else: 
             self.ncmap = self.ncmap_in
-        
+
+        # In case there is a 3rd dimension, and a filter has to be applied on it:
+        if self.dim3_index and self.timexist:
+            self.ncmap = self.ncmap[:,:,:,self.dim3_index]
+        elif self.dim3_index:
+            self.ncmap = self.ncmap[:,:,self.dim3_index]
+        else:
+            self.ncmap
+
         # Create map linking m-maps to lat/lon matrix
         print("\tCreating vector map")
         vectormap = self.get_vectormap(self.ncmap, self.mapping, self.timexist)
