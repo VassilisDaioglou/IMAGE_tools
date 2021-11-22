@@ -44,7 +44,8 @@ def main(run):
         # List of maps to convert from nc to m
             # 1. nc-map file name, 2. Variable Name, 3. Output Name, 4. Has time dimension (boolean), 5. M-file header comment, 6. Multiplier
         nc2m_maps_list = [
-            ['socio-political_feasability_score.nc','socio-political_feasability_score','socio-political_feasability_score',False,'Socio-political feasability score from Roe et al (2021)',1]
+            ['GLANDCOVERDETAIL_30MIN_double_AICHI.nc','GLANDCOVERDETAIL_30MIN','Double_AICHI_constraint',True,'Double-AICHI Biodiversity Constraint',1],
+            #['socio-political_feasability_score.nc','socio-political_feasability_score','socio-political_feasability_score',False,'Socio-political feasability score from Roe et al (2021)',1]
             #['Species_loss_factors_total.nc','layer','Species_loss_factor',False,"Species loss factors (terrestrial vertebrates), 1e9 10log loss/Ha",1e9]
             #['consumption_waterstress_majorbasins.nc','waterstress','consumption_waterstress_majorbasins',True,"Consumption Waterstress Major Basins",1],
             #['consumption_waterstress_smallbasins.nc','waterstress','consumption_waterstress_smallbasins',True,"Consumption Waterstress Small Basins",1],

@@ -138,6 +138,7 @@ class nc2m:
         print("\tReading in nc-map")
         self.ncmap_in = self.read_map(InputDir.nc_in_dir + self.ncmap_in, self.map_var) * self.multiplier
 
+        print("stop")
         # Only take values for 1971, 2000, 2020, 2050 and 2100 if nc data is annual
         if self.timexist and len(self.ncmap_in) > 10:
             self.ncmap = np.take(self.ncmap_in, Constants.year_subset, axis=0)
