@@ -16,7 +16,8 @@ from outputs import WriteMaps
 class Constants: 
     NC = 66663
     year_subset = [1, 30, 50, 80, 130]  # Indexes for years 1971, 2000, 2020, 2050, 2100
-    five_year_subset = [0, 6, 10, 16, 26]  # Indexes for years 1971, 2000, 2020, 2050, 2100
+    year_subset_27 = [0, 6, 10, 16, 26] # If map in 5 year increments to 2100 Indexes for years 1971, 2000, 2020, 2050, 2100
+    year_subset_17 = [0, 10, 16, 16]     # If map in 5 year incremets to 2050: Indexes for years 1971, 2000, 2020, 2050
 
 def get_mmapping(grdfile): 
     """
@@ -142,11 +143,12 @@ class nc2m:
         self.ncmap_in = self.read_map(InputDir.nc_in_dir + self.ncmap_in, self.map_var) * self.multiplier
 
         # Only take values for 1971, 2000, 2020, 2050 and 2100 if nc data is annual
-        if self.timexist and self.timestep == 1:
+        if self.timexist and self.timestep == 132:
             self.ncmap = np.take(self.ncmap_in, Constants.year_subset, axis=0)
-        elif self.timexist and self.timestep == 5:
-            self.ncmap = np.take(self.ncmap_in, Constants.five_year_subset, axis=0)
-        
+        elif self.timexist and self.timestep == 27:
+            self.ncmap = np.take(self.ncmap_in, Constants.year_subset_27, axis=0)
+        elif self.timexist and self.timestep == 17:
+            self.ncmap = np.take(self.ncmap_in, Constants.year_subset_17, axis=0)
         else: 
             self.ncmap = self.ncmap_in
 
@@ -213,7 +215,7 @@ class nc2m:
                     print("\t\ttimestep: ", t)
                     for i in range(Constants.NC):
                         map_loc = mapping[i]
-                        vectormap[t,i] = ncmap[t,map_loc[0], map_loc[1]]
+                        vectormap[t,i] = ncmap[t,map_loc[0], map_loc[1]].data
                         vectormap[np.isnan(vectormap)] = 0
             else:
                 vectormap = np.zeros(Constants.NC)
